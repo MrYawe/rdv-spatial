@@ -1,21 +1,42 @@
 package main
  // export GOPATH=$HOME/go
+ // go get ./...
 import(
-  "fmt"
-  "math"
-  "github.com/gonum/matrix/mat64"
+	"fmt"
+	"math"
+	"github.com/gonum/matrix/mat64"
 )
 
-func xnplus1(x *mat64.Dense, u *mat64.Dense, A *mat64.Dense, B *mat64.Dense, deltaT float64) *mat64.Dense {
+func eulerX(x *mat64.Dense, u *mat64.Dense, A *mat64.Dense, B *mat64.Dense, deltaT float64) *mat64.Dense {
 	res := mat64.NewDense( 4, 1, []float64{0, 0, 0, 0})
 
 	Ax := mat64.NewDense( 4, 1, []float64{0, 0, 0, 0})
 	Ax.Mul(A, x)
+	dAx := mat64.NewDense( 4, 1, []float64{0, 0, 0, 0})
+	dAx.Scale(deltaT, Ax)
+
 	Bu := mat64.NewDense( 4, 1, []float64{0, 0, 0, 0})
 	Bu.Mul(B, u)
+	dBu := mat64.NewDense( 4, 1, []float64{0, 0, 0, 0})
+	dBu.Scale(deltaT, Bu)
 
-	res.Add(Ax, Bu)
+	res.Add(dAx, dBu)
 	res.Add(res, x)
+	return res
+}
+
+func eulerRetroP(P *mat64.Dense, A *mat64.Dense, deltaT float64, T int) *mat64.Dense {
+	A.Pow(A, T)
+
+	AtP := mat64.NewDense( 4, 1, []float64{0, 0, 0, 0})
+	AtP.Mul(A, P)
+
+	dAtP := mat64.NewDense( 4, 1, []float64{0, 0, 0, 0})
+	dAtP.Scale(deltaT, AtP)
+
+	res := mat64.NewDense( 4, 1, []float64{0, 0, 0, 0})
+	res.Add(P, dAtP)
+
 	return res
 }
 
@@ -32,22 +53,11 @@ func test(a mat64.Dense, b mat64.Dense, c mat64.Dense) {
 
 func main() {
 
-    // initialize a 3 element float64 slice
-
-
-    // alternatively, create the matrix y by
-    // inserting the data directly as an argument
-    //y := mat64.NewDense( 3, 1, []float64{1, 4.57575757, 5})
-
-    // create an empty matrix for the addition
-    //z := mat64.NewDense( 3, 1, []float64{0, 0, 0})
-
-    // perform the addition
-    //z.Add( x, y )
-
-	deltaT := 0.1
-	T := 5480
-    w := (2*math.Pi)/5480
+	//T := 1.0
+	nbIteration := 500
+	T := 1.0
+	deltaT := (3*T)/float64(nbIteration)
+    var w float64 = (2*math.Pi)/T
     x := mat64.NewDense( 4, 1, []float64{1, 0, 0, 0})
     u := mat64.NewDense( 2, 1, []float64{0, 0})
     A := mat64.NewDense(4, 4, []float64{
@@ -72,10 +82,18 @@ func main() {
     fmt.Printf("A = %0.4v\n\n", mat64.Formatted(A, mat64.Prefix("    ")))
     fmt.Printf("B = %0.4v\n\n", mat64.Formatted(B, mat64.Prefix("    ")))
 
-    for i := 0; i <= T; i++ {
-		x = xnplus1(x, u, A, B, deltaT)
+    for i := 0; i <= nbIteration; i++ {
+		x = eulerX(x, u, A, B, deltaT)
+		//fmt.Printf("x(%d) = %0.4v\n\n", i, mat64.Formatted(x, mat64.Prefix("         ")))
     }
-	fmt.Printf("x(%d) = %0.4v\n\n", T, mat64.Formatted(x, mat64.Prefix("          ")))
+	fmt.Printf("x(%d) = %0.4v\n\n", nbIteration, mat64.Formatted(x, mat64.Prefix("         ")))
+
+	P := x
+	for i := nbIteration-1; i >= 0; i-- {
+		P = eulerRetroP(P, A, deltaT, int(T))
+		//fmt.Printf("P(%d) = %0.4v\n\n", i, mat64.Formatted(P, mat64.Prefix("         ")))
+    }
+	fmt.Printf("P(%d) = %0.4v\n\n", 0, mat64.Formatted(P, mat64.Prefix("       ")))
 
 	/*
     b := mat64.NewDense(4, 3, []float64{
