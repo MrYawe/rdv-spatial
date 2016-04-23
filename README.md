@@ -1,5 +1,12 @@
 # rdv-spatial
 
-* gonum/matrix             
-* gonum/lapack              
-* gonum/floats              
+## Installation
+Télécharger go (https://golang.org/dl/)[ici] (Linux, OS X et Windows)                     
+`export PATH=$PATH:/usr/local/go/bin`                                                  
+`mkdir ~/go`      
+`mkdir ~/go/bin ~/go/pkg ~/go/src`                               
+`export GOPATH=$HOME/go`                             
+`go get github.com/MrYawe/rdv-spatial`                                 
+`cd ~/go/src/github.com/MrYawe/rdv-spatial`               
+`go get ./...`                  
+`go run main.go`                                                        
