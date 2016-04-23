@@ -5,8 +5,7 @@ Télécharger go [ici](https://golang.org/dl/) (Linux, OS X et Windows)
 
 Sur Linux :                     
 `export PATH=$PATH:/usr/local/go/bin`                                                  
-`mkdir ~/go`      
-`mkdir ~/go/bin ~/go/pkg ~/go/src`                               
+`mkdir -p ~/go/bin ~/go/pkg ~/go/src`                               
 `export GOPATH=$HOME/go`                             
 `go get github.com/MrYawe/rdv-spatial`                                 
 `cd ~/go/src/github.com/MrYawe/rdv-spatial`               
