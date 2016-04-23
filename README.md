@@ -1,7 +1,9 @@
 # rdv-spatial
 
 ## Installation
-Télécharger go [ici](https://golang.org/dl/) (Linux, OS X et Windows)                     
+Télécharger go [ici](https://golang.org/dl/) (Linux, OS X et Windows)         
+
+Sur Linux :                     
 `export PATH=$PATH:/usr/local/go/bin`                                                  
 `mkdir ~/go`      
 `mkdir ~/go/bin ~/go/pkg ~/go/src`                               
